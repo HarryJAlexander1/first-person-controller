@@ -1,26 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public CharacterController characterController;
-    public float speed; // movement speed variable
-    private float gravity = -9.81f;
+    public CharacterController CharacterController;
+    public float Speed; // movement speed variable
+    private float SprintingSpeed;
+    private float WalkingSpeed;
+    private float Gravity = -9.81f;
     Vector3 Velocity;
 
     // variables to check if player is grounded (not falling)
     public Transform GroundCheckTransform;
     private float GroundDistance = 0.4f;
     public LayerMask GroundMask;
-    private bool isGrounded = false;
+    private bool IsGrounded = false;
 
     private float JumpHeight = 5f;
 
+    private Vector3 StandingScale;
+    private Vector3 CrouchingScale;
     // Start is called before the first frame update
     void Start()
     {
-        
+        SprintingSpeed = Speed * 2;
+        WalkingSpeed = SprintingSpeed * 0.5f;
+        StandingScale = transform.localScale;
+        CrouchingScale = new Vector3(transform.localScale.x, transform.localScale.y * 0.5f, transform.localScale.z);
     }
 
     // Update is called once per frame
@@ -31,9 +39,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement() 
     {
-        isGrounded = Physics.CheckSphere(GroundCheckTransform.position, GroundDistance, GroundMask); // check to see if player is on the ground
+        IsGrounded = Physics.CheckSphere(GroundCheckTransform.position, GroundDistance, GroundMask); // check to see if player is on the ground
 
-        if (isGrounded && Velocity.y < 0f)
+        if (IsGrounded && Velocity.y < 0f)
         {
             Velocity.y = -2f; // setting players velocity on y axis to -2f and not 0 to account for delay in call
         }
@@ -43,16 +51,36 @@ public class PlayerMovement : MonoBehaviour
 
         // logic for moving player along x and z axis
         Vector3 move = transform.right * x + transform.forward * z;
-        characterController.Move(move * speed * Time.deltaTime);
+        CharacterController.Move(move * Speed * Time.deltaTime);
 
         // simulate gravity acting on player
-        Velocity.y += gravity * Time.deltaTime;
-        characterController.Move(Velocity * Time.deltaTime);
+        Velocity.y += Gravity * Time.deltaTime;
+        CharacterController.Move(Velocity * Time.deltaTime);
 
         // logic for jumping on y axis
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        if (IsGrounded && Input.GetButtonDown("Jump"))
         {
-            Velocity.y += Mathf.Sqrt(JumpHeight * -2f * gravity);
+            Velocity.y += Mathf.Sqrt(JumpHeight * -2f * Gravity);
+        }
+
+        // logic for sprinting
+        if (IsGrounded && Input.GetKey(KeyCode.LeftShift))
+        {
+            Speed = SprintingSpeed;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift)) 
+        {
+            Speed = WalkingSpeed;
+        }
+
+        // logic for couching
+        if (IsGrounded && Input.GetKey(KeyCode.LeftControl))
+        {
+            transform.localScale = CrouchingScale;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            transform.localScale = StandingScale;
         }
     }
 }
