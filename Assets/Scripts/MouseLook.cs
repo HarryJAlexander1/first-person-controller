@@ -28,6 +28,5 @@ public class MouseLook : MonoBehaviour
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f); // stops player from rotating camera too far on x axis
         CameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // rotate camera on X axis
-
     }
 }

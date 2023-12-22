@@ -22,6 +22,12 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 StandingScale;
     private Vector3 CrouchingScale;
+
+    private Vector3 PreviousPosition;
+    private bool IsMoving;
+    public GameObject Camera;
+
+    bool CameraMovingUp;
     // Start is called before the first frame update
     void Start()
     {
@@ -29,6 +35,8 @@ public class PlayerMovement : MonoBehaviour
         WalkingSpeed = SprintingSpeed * 0.5f;
         StandingScale = transform.localScale;
         CrouchingScale = new Vector3(transform.localScale.x, transform.localScale.y * 0.5f, transform.localScale.z);
+        PreviousPosition = transform.position;
+        CameraMovingUp = true;
     }
 
     // Update is called once per frame
@@ -81,6 +89,58 @@ public class PlayerMovement : MonoBehaviour
         else if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             transform.localScale = StandingScale;
+        }
+
+        if (transform.position != PreviousPosition)
+        {
+            // The parent GameObject is moving.
+            Debug.Log("Player is moving!");
+            IsMoving = true;
+            // Update the previous position for the next frame.
+            PreviousPosition = transform.position;
+        }
+        else
+        {
+            Debug.Log("Player is stationary");
+            IsMoving = false;
+        }
+
+        if (IsMoving && IsGrounded) 
+        {
+            // bob camera to simulate walking
+            BobCamera(0.8f);
+        }
+    }
+
+    private void BobCamera(float speed) 
+    {
+        float maxY = 1f;
+        float minY = 0.8f;
+
+        float moveSpeed = speed;
+        
+        // Check if the object is moving up
+        if (CameraMovingUp)
+        {
+            // Move the object up
+            Camera.transform.Translate(moveSpeed * Time.deltaTime * Vector3.up);
+
+            // Check if the object has reached or exceeded the maximum y position
+            if (Camera.transform.localPosition.y >= maxY)
+            {
+                CameraMovingUp = false; // Switch to moving down
+            }
+        }
+        else
+        {
+            // Move the object down
+            Camera.transform.Translate(moveSpeed * Time.deltaTime * Vector3.down);
+
+            // Check if the object has reached or gone below the minimum y position
+            if (Camera.transform.localPosition.y <= minY)
+            {
+                CameraMovingUp = true; // Switch to moving up
+            }
         }
     }
 }
