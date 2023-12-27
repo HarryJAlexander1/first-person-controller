@@ -25,13 +25,13 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 PreviousPosition;
     private bool IsMoving;
-    public GameObject Camera;
+    public GameObject Head;
 
     bool CameraMovingUp;
     // Start is called before the first frame update
     void Start()
     {
-        SprintingSpeed = Speed * 2;
+        SprintingSpeed = Speed * 1.5f;
         WalkingSpeed = SprintingSpeed * 0.5f;
         StandingScale = transform.localScale;
         CrouchingScale = new Vector3(transform.localScale.x, transform.localScale.y * 0.5f, transform.localScale.z);
@@ -108,14 +108,14 @@ public class PlayerMovement : MonoBehaviour
         if (IsMoving && IsGrounded) 
         {
             // bob camera to simulate walking
-            BobCamera(0.8f);
+            BobHead(0.8f);
         }
     }
 
-    private void BobCamera(float speed) 
+    private void BobHead(float speed) 
     {
-        float maxY = 1f;
-        float minY = 0.8f;
+        float maxY = 0.6f;
+        float minY = 0.4f;
 
         float moveSpeed = speed;
         
@@ -123,10 +123,10 @@ public class PlayerMovement : MonoBehaviour
         if (CameraMovingUp)
         {
             // Move the object up
-            Camera.transform.Translate(moveSpeed * Time.deltaTime * Vector3.up);
+            Head.transform.Translate(moveSpeed * Time.deltaTime * Vector3.up);
 
             // Check if the object has reached or exceeded the maximum y position
-            if (Camera.transform.localPosition.y >= maxY)
+            if (Head.transform.localPosition.y >= maxY)
             {
                 CameraMovingUp = false; // Switch to moving down
             }
@@ -134,10 +134,10 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             // Move the object down
-            Camera.transform.Translate(moveSpeed * Time.deltaTime * Vector3.down);
+            Head.transform.Translate(moveSpeed * Time.deltaTime * Vector3.down);
 
             // Check if the object has reached or gone below the minimum y position
-            if (Camera.transform.localPosition.y <= minY)
+            if (Head.transform.localPosition.y <= minY)
             {
                 CameraMovingUp = true; // Switch to moving up
             }
